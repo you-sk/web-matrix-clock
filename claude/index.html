@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7セグメントデジタル時計</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* マトリックスエフェクト用キャンバス */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+
+
+        #clock {
+            font-family: 'Orbitron', monospace;
+            font-size: 12vw;
+            font-weight: 900;
+            color: #00ff00;
+            text-shadow:
+                    0 0 10px #00ff00,
+                    0 0 20px #00ff00,
+                    0 0 30px #00ff00,
+                    0 0 40px #00ff00;
+            letter-spacing: 0.3em;
+            position: relative;
+            z-index: 1;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            display: inline-block;
+            min-width: 80vw;
+            text-align: center;
+        }
+
+        #date {
+            font-family: 'Orbitron', monospace;
+            font-size: 3vw;
+            font-weight: 700;
+            color: #00ff00;
+            margin-top: 2vh;
+            text-shadow: 0 0 10px #00ff00;
+            letter-spacing: 0.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 数字の固定幅設定 */
+        .digit {
+            display: inline-block;
+            width: 0.8em;
+            text-align: center;
+        }
+
+        .separator {
+            display: inline-block;
+            width: 0.5em;
+            text-align: center;
+        }
+        .colon {
+            animation: blink 1s steps(2) infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            #clock {
+                font-size: 15vw;
+            }
+            #date {
+                font-size: 5vw;
+            }
+        }
+    </style>
+</head>
+<body>
+<canvas id="matrix-canvas"></canvas>
+<div id="clock">00:00:00</div>
+<div id="date">0000/00/00</div>
+
+<script>
+    // マトリックスエフェクト
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // キャンバスサイズ設定
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // マトリックス文字
+    const katakana = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nums = '0123456789';
+    const alphabet = katakana + latin + nums;
+
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+
+    // 各列の初期位置
+    for(let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * -canvas.height / fontSize;
+    }
+
+    // マトリックスアニメーション
+    function drawMatrix() {
+        // 半透明の黒で前のフレームをフェードアウト
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff00';
+        ctx.font = fontSize + 'px monospace';
+
+        // 文字を描画
+        for(let i = 0; i < drops.length; i++) {
+            const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            // 画面下まで到達したらリセット
+            if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    // 時計の更新
+    function updateClock() {
+        const now = new Date();
+
+        // 時刻の取得とフォーマット
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        // 日付の取得とフォーマット
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+
+        // 表示の更新（各数字を固定幅のspanで囲む）
+        const timeString = `${hours}:${minutes}:${seconds}`;
+        let formattedTime = '';
+
+        for (let i = 0; i < timeString.length; i++) {
+            if (timeString[i] === ':') {
+                formattedTime += `<span class="separator colon">${timeString[i]}</span>`;
+            } else {
+                formattedTime += `<span class="digit">${timeString[i]}</span>`;
+            }
+        }
+
+        document.getElementById('clock').innerHTML = formattedTime;
+        document.getElementById('date').textContent = `${year}/${month}/${day}`;
+    }
+
+    // 初回実行
+    updateClock();
+
+    // 定期更新
+    setInterval(updateClock, 1000);
+    setInterval(drawMatrix, 35);
+</script>
+</body>
+</html>
