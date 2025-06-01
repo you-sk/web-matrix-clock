@@ -62,3 +62,11 @@
 ## ライセンス
 
 このプロジェクトMITライセンスで公開されています。
+
+## 補足
+このアプリはgoogleの生成AI geminiで作成しました
+- https://you-sk.github.io/web-matrix-clock/
+
+同じ内容でchatGPT / Claudeで作成したものがこちら
+- https://you-sk.github.io/web-matrix-clock/chatgpt
+- https://you-sk.github.io/web-matrix-clock/claude
