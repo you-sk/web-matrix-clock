@@ -1,0 +1,121 @@
+/* --- 全体の設定 --- */
+body {
+    background-color: #000;
+    color: #00ff00;
+    font-family: 'Share Tech Mono', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* --- マトリックス背景用キャンバス --- */
+#matrix-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* 時計より背面に */
+}
+
+/* --- 時計のコンテナ --- */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* 画面幅いっぱいに */
+    z-index: 1; /* マトリックスより手前に */
+}
+
+/* --- 7セグメント表示エリア --- */
+.segment-display-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.segment-char {
+    display: grid;
+    grid-template-areas:
+                ". a ."
+                "f . b"
+                ". g ."
+                "e . c"
+                ". d .";
+    grid-template-columns: 0.15fr 1fr 0.15fr;
+    grid-template-rows: 0.15fr 1fr 0.15fr 1fr 0.15fr;
+    width: 9vw;
+    height: 16vw;
+    max-width: 70px;
+    max-height: 120px;
+    margin: 0 0.8vw;
+    position: relative;
+}
+
+.segment {
+    background-color: #2a2a2a;
+    border-radius: 3px;
+    transition: background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+}
+
+.segment.on {
+    background-color: #00ff00;
+    box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00, 0 0 3px #fff inset;
+}
+
+/* 各セグメントの位置と形状 */
+.seg-a { grid-area: a; height: 100%; margin: 0 5%;}
+.seg-g { grid-area: g; height: 100%; margin: 0 5%;}
+.seg-d { grid-area: d; height: 100%; margin: 0 5%;}
+
+.seg-b { grid-area: b; width: 100%; margin: 5% 0; justify-self: end;}
+.seg-c { grid-area: c; width: 100%; margin: 5% 0; justify-self: end;}
+.seg-e { grid-area: e; width: 100%; margin: 5% 0; justify-self: start;}
+.seg-f { grid-area: f; width: 100%; margin: 5% 0; justify-self: start;}
+
+
+.colon {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 3.5vw;
+    height: 16vw;
+    max-width: 25px;
+    max-height: 120px;
+    margin: 0 0.3vw;
+}
+.colon-dot {
+    width: 1.8vw;
+    height: 1.8vw;
+    max-width: 12px;
+    max-height: 12px;
+    background-color: #00ff00;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
+}
+
+/* --- 日付の表示 (テキスト) --- */
+.date-display {
+    font-size: 3.8vw;
+    letter-spacing: 0.1vw;
+    text-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
+    margin-top: 15px;
+}
+@media (max-width: 768px) { /* タブレット */
+    .segment-char { width: 11vw; height: 20vw; max-width: 60px; max-height: 100px; margin: 0 0.6vw;}
+    .colon { width: 4vw; height: 20vw; max-width: 20px; max-height: 100px;}
+    .date-display { font-size: 4.5vw; }
+}
+@media (max-width: 480px) { /* スマートフォン */
+    .segment-char { width: 14vw; height: 25vw; max-width: 50px; max-height: 85px; margin: 0 0.4vw;}
+    .colon { width: 5vw; height: 25vw; max-width: 15px; max-height: 85px;}
+    .date-display { font-size: 5.5vw; }
+}
